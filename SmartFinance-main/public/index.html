@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartFinance</title>
+    <meta name="description" content="SmartFinance redesigned dashboard with live transactions, budgets, analytics, notifications, settings, and support.">
+    <meta name="theme-color" content="#F8FAFC">
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('sf-theme') || 'light';
+            document.documentElement.dataset.theme = savedTheme;
+            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="vendor/chart.umd.min.js" defer></script>
+    <script src="vendor/gsap.min.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#appMain">Skip to content</a>
+
+    <header class="top-app-bar" id="appHeader">
+        <button class="brand-lockup" type="button" data-tab="dashboard" aria-label="Go to dashboard">
+            <span class="material-symbols-outlined brand-symbol" aria-hidden="true">dataset</span>
+            <span class="brand-name">SmartFinance</span>
+        </button>
+
+        <nav class="desktop-nav" aria-label="Main navigation">
+            <button class="nav-tab active" type="button" data-tab="dashboard">Dashboard</button>
+            <button class="nav-tab" type="button" data-tab="transactions">Transactions</button>
+            <button class="nav-tab" type="button" data-tab="budgets">Budgets</button>
+            <button class="nav-tab" type="button" data-tab="analytics">Analytics</button>
+            <button class="nav-tab" type="button" data-tab="support">Support</button>
+            <button class="nav-tab" type="button" data-tab="notifications">Activity</button>
+            <button class="nav-tab" type="button" data-tab="settings">Settings</button>
+        </nav>
+
+        <div class="top-actions">
+            <button class="icon-button" type="button" id="globalSearchBtn" aria-label="Focus ledger search">
+                <span class="material-symbols-outlined" aria-hidden="true">search</span>
+            </button>
+            <button class="icon-button notification-button" type="button" data-tab="notifications" aria-label="Activity notifications">
+                <span class="material-symbols-outlined" aria-hidden="true">notifications</span>
+                <span class="notification-dot" id="notificationDot"></span>
+            </button>
+            <button class="profile-trigger" type="button" id="profileToggle" aria-expanded="false" aria-controls="profileMenu">
+                <img id="userAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Irfan&backgroundColor=dde1ff" alt="User avatar">
+                <span class="material-symbols-outlined" aria-hidden="true">expand_more</span>
+            </button>
+            <div class="profile-menu hidden" id="profileMenu">
+                <div class="profile-cardlet">
+                    <img id="profileMenuAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Irfan&backgroundColor=dde1ff" alt="">
+                    <div>
+                        <strong id="profileMenuName">Irfan</strong>
+                        <span id="profileMenuEmail">irfan@example.com</span>
+                    </div>
+                </div>
+                <button type="button" data-tab="settings"><span class="material-symbols-outlined">person</span>My Profile</button>
+                <button type="button" data-tab="settings"><span class="material-symbols-outlined">settings</span>Account Settings</button>
+                <button type="button" id="themeToggle"><span class="material-symbols-outlined">dark_mode</span><span id="themeToggleLabel">Dark mode</span></button>
+                <button type="button" data-tab="support"><span class="material-symbols-outlined">support_agent</span>Support Center</button>
+            </div>
+        </div>
+    </header>
+
+    <main id="appMain" class="app-canvas">
+        <section class="screen active" id="dashboard-panel">
+            <div class="page-heading">
+                <div>
+                    <p class="eyebrow">William style dashboard</p>
+                    <h1>Expense Watchlist</h1>
+                    <p class="lede">Live financial health, budget pressure, cash flow, and AI-powered nudges.</p>
+                </div>
+                <div class="toolbar">
+                    <button class="secondary-button" type="button" id="refreshAlertsBtn"><span class="material-symbols-outlined">refresh</span>Refresh alerts</button>
+                    <button class="primary-button" type="button" id="addTransactionBtn"><span class="material-symbols-outlined">add</span>Add transaction</button>
+                </div>
+            </div>
+
+            <div id="predictiveAlerts" class="alert-stack"></div>
+
+            <div class="watchlist-grid" id="watchlistCards"></div>
+
+            <div class="dashboard-grid">
+                <article class="card health-card">
+                    <div class="card-title-row">
+                        <div>
+                            <h2>Financial Health</h2>
+                            <p>Monthly income, expense, and savings signal.</p>
+                        </div>
+                        <button class="mini-icon" type="button" data-tab="analytics" aria-label="Open analytics"><span class="material-symbols-outlined">open_in_new</span></button>
+                    </div>
+                    <div class="health-meter">
+                        <div class="health-fill" id="healthFill"></div>
+                    </div>
+                    <div class="health-score">
+                        <strong id="healthScore">0</strong><span>/100</span>
+                        <em id="healthLabel">Waiting for data</em>
+                    </div>
+                    <div class="metric-pair">
+                        <div><span>Total Income</span><strong id="totalIncome">Rs. 0</strong></div>
+                        <div><span>Total Expense</span><strong id="totalExpense">Rs. 0</strong></div>
+                    </div>
+                </article>
+
+                <article class="card cash-card">
+                    <div class="card-title-row">
+                        <div>
+                            <h2>Cash Flow & Burn Rate</h2>
+                            <p>Monthly surplus for the selected period.</p>
+                        </div>
+                        <div class="range-tabs"><button class="active">1M</button><button data-tab="analytics">6M</button></div>
+                    </div>
+                    <strong class="cash-total" id="netSavings">Rs. 0</strong>
+                    <p class="lede tight" id="savingsRate">Savings rate 0%</p>
+                    <div class="chart-frame trend-mini"><canvas id="dashboardTrendChart"></canvas></div>
+                </article>
+            </div>
+
+            <div class="bento-four">
+                <article class="card ai-card">
+                    <div class="card-title-row">
+                        <h2>AI Spending Roast</h2>
+                        <button class="mini-icon accent" type="button" id="roastMeBtn" aria-label="Open AI spending roast"><span class="material-symbols-outlined">local_fire_department</span></button>
+                    </div>
+                    <p>Get a blunt, data-backed read on your spending habits for the month.</p>
+                    <button class="surface-action" type="button" id="roastMeBtnAlt"><span class="material-symbols-outlined">local_fire_department</span>Generate roast</button>
+                </article>
+                <article class="card">
+                    <div class="card-title-row"><h2>Budget Pressure</h2><button class="mini-icon" data-tab="budgets" type="button"><span class="material-symbols-outlined">bar_chart</span></button></div>
+                    <div class="bar-spark" id="budgetSpark"></div>
+                </article>
+                <article class="card">
+                    <div class="card-title-row"><h2>Expense Analytics</h2><button class="mini-icon" data-tab="analytics" type="button"><span class="material-symbols-outlined">open_in_new</span></button></div>
+                    <div class="chart-frame donut-small"><canvas id="expenseChart"></canvas></div>
+                    <div class="chart-legend compact" id="expenseLegend"></div>
+                    <div id="expenseBreakdownPanel" class="expense-breakdown-panel hidden"></div>
+                </article>
+                <article class="card advisor-card">
+                    <div class="card-title-row"><h2>AI Finance Advisor</h2><button class="mini-icon accent" type="button" id="openChatShortcut"><span class="material-symbols-outlined">smart_toy</span></button></div>
+                    <p>Ask questions about your real ledger and monthly trends.</p>
+                </article>
+            </div>
+
+            <article class="card ledger-preview">
+                <div class="card-title-row">
+                    <div><h2>Recent Transactions</h2><p>Latest financial movement.</p></div>
+                    <button class="secondary-button" type="button" data-tab="transactions">View ledger</button>
+                </div>
+                <div id="recentTransactions" class="transaction-stack"></div>
+            </article>
+        </section>
+
+        <section class="screen" id="transactions-panel">
+            <div class="page-heading">
+                <div><p class="eyebrow">Transaction ledger</p><h1>Review and categorize activity</h1><p class="lede">Search, filter, edit, delete, and add transactions from the live backend.</p></div>
+                <div class="toolbar"><button class="secondary-button" id="scanFromLedgerBtn" type="button"><span class="material-symbols-outlined">document_scanner</span>Scan receipt</button><button class="primary-button" id="addTransactionBtnLedger" type="button"><span class="material-symbols-outlined">add</span>Add</button></div>
+            </div>
+            <div class="ledger-controls">
+                <div class="search-box"><span class="material-symbols-outlined">search</span><input id="transactionSearch" type="search" placeholder="Search merchants or notes"></div>
+                <div class="month-control"><button class="icon-button" id="prevMonth" type="button" aria-label="Previous month"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><span id="currentMonth">May 2026</span><button class="icon-button" id="nextMonth" type="button" aria-label="Next month"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div>
+            </div>
+            <article class="card ledger-card">
+                <div class="filter-row" id="categoryFilters"></div>
+                <div class="table-wrap">
+                    <table class="ledger-table">
+                        <thead><tr><th>Category</th><th>Merchant & Date</th><th>Smart Tags</th><th class="amount-cell">Amount</th><th>Actions</th></tr></thead>
+                        <tbody id="transactionsList"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-bar"><button class="secondary-button" id="prevPage" type="button">Previous</button><span id="pageInfo">Page 1 of 1</span><button class="secondary-button" id="nextPage" type="button">Next</button></div>
+            </article>
+        </section>
+
+        <section class="screen" id="budgets-panel">
+            <div class="page-heading">
+                <div><p class="eyebrow">Budget manager</p><h1>Budget Command</h1><p class="lede">Current financial trajectory, limits, and AI risk signals.</p></div>
+                <div class="toolbar"><div class="month-control"><button class="icon-button" id="prevBudgetMonth" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button><span id="budgetMonth">May 2026</span><button class="icon-button" id="nextBudgetMonth" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></button></div><button class="primary-button" id="addBudgetBtn" type="button"><span class="material-symbols-outlined">add</span>New budget</button></div>
+            </div>
+            <div class="budget-hero">
+                <article class="card total-budget-card">
+                    <div class="budget-metrics-row">
+                        <div class="budget-metrics-left">
+                            <h2>Total Monthly Budget</h2>
+                            <p>Across all configured categories</p>
+                            <div class="budget-total-line"><strong id="budgetSpentTotal">Rs. 0</strong><span id="budgetLimitTotal">/ Rs. 0 limit</span></div>
+                            <div class="progress-track"><div class="progress-fill" id="budgetTotalFill"></div></div>
+                            <div class="split-line"><span id="budgetUtilized">0% utilized</span><strong id="budgetTrendLabel">Stable</strong></div>
+                        </div>
+                        <div class="budget-metrics-chart">
+                            <div class="chart-frame budget-doughnut"><canvas id="budgetChart"></canvas></div>
+                        </div>
+                    </div>
+                    <div class="budget-comparison" id="budgetComparison"></div>
+                </article>
+                <article class="card ai-projection"><span class="material-symbols-outlined">auto_awesome</span><h2>AI Projection</h2><p id="budgetProjectionText">Refresh alerts to analyze your burn rate.</p><button class="surface-action" type="button" id="analyzeBurnBtn">Analyze burn rate</button></article>
+            </div>
+            <div class="section-title-row"><h2>Category Breakdown</h2></div>
+            <div class="budget-grid" id="budgetCards"></div>
+        </section>
+
+        <section class="screen" id="analytics-panel">
+            <div class="page-heading"><div><p class="eyebrow">Advanced analytics</p><h1>Deep dive into your financial data</h1><p class="lede">Six-month trends, category mix, savings rate, and AI insight.</p></div></div>
+            <div class="analytics-grid">
+                <article class="card trend-card"><div class="card-title-row"><div><h2>Spending Trends</h2><p>Income vs expenses over time</p></div></div><div class="analytics-total" id="analyticsTotalSpend">Rs. 0</div><div class="chart-frame large"><canvas id="trendChart"></canvas></div></article>
+                <article class="card"><h2>Category Breakdown</h2><div class="chart-frame donut-large"><canvas id="analyticsChart"></canvas></div><div class="chart-legend" id="analyticsLegend"></div><div class="expense-breakdown-panel hidden" data-expense-breakdown></div></article>
+                <article class="card"><h2>Top Spending Categories</h2><div class="insight-chip" id="insightChip">Waiting for this month signal</div><div id="topCategories" class="top-category-list"></div></article>
+                <article class="card ai-card"><h2>AI Insight</h2><p id="analyticsInsight">Load analytics to surface a practical savings recommendation.</p><button class="surface-action" type="button" data-tab="budgets">Adjust budget</button></article>
+            </div>
+        </section>
+
+        <section class="screen" id="support-panel">
+            <div class="support-hero"><h1>How can we help?</h1><p>Search common topics or submit a real support request saved to the backend.</p><div class="search-box wide"><span class="material-symbols-outlined">search</span><input id="supportSearch" type="search" placeholder="Search for receipt OCR, budgets, exports..."></div></div>
+            <div class="support-grid">
+                <article class="support-card"><span class="material-symbols-outlined">lock</span><h2>Security & Privacy</h2><p>Account, profile, and data privacy guidance.</p></article>
+                <article class="support-card"><span class="material-symbols-outlined">receipt_long</span><h2>Transactions</h2><p>Missing entries, categories, receipt scanning, and sync questions.</p></article>
+                <article class="support-card"><span class="material-symbols-outlined">auto_awesome</span><h2>AI Tools</h2><p>Roasts, advisor chat, category suggestions, and predictive alerts.</p></article>
+                <article class="support-card accent-card"><span class="material-symbols-outlined">smart_toy</span><h2>Chat with AI Advisor</h2><p>Ask about your ledger instantly.</p><button class="primary-button" type="button" id="supportChatBtn">Start conversation</button></article>
+            </div>
+            <div class="support-form-grid">
+                <form class="card form-card" id="supportForm"><h2>Submit a support request</h2><label>Subject<input id="supportSubject" required maxlength="80"></label><label>Category<select id="supportCategory"><option>Transactions</option><option>Budgets</option><option>Analytics</option><option>AI Tools</option><option>Account</option></select></label><label>Message<textarea id="supportMessage" required rows="4"></textarea></label><button class="primary-button" type="submit">Send request</button></form>
+                <article class="card"><h2>Recent requests</h2><div id="supportRequests" class="request-list"></div></article>
+            </div>
+        </section>
+
+        <section class="screen" id="notifications-panel">
+            <div class="page-heading"><div><p class="eyebrow">Activity notifications</p><h1>Stay updated on financial health</h1><p class="lede">Budget risk, transactions, profile changes, settings, and support activity.</p></div><div class="toolbar"><button class="secondary-button" id="markReadBtn" type="button">Mark all as read</button></div></div>
+            <div id="notificationsList" class="notifications-list"></div>
+        </section>
+
+        <section class="screen" id="settings-panel">
+            <div class="settings-layout">
+                <aside class="settings-nav card"><h1>Settings</h1><p>Manage account and preferences.</p><button class="active" type="button"><span class="material-symbols-outlined">person</span>Profile</button><button type="button"><span class="material-symbols-outlined">notifications</span>Notifications</button><button type="button"><span class="material-symbols-outlined">auto_awesome</span>AI Features</button></aside>
+                <div class="settings-stack">
+                    <form class="card form-card" id="profileForm"><h2>Personal Information</h2><div class="profile-large"><img id="settingsAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Irfan&backgroundColor=dde1ff" alt=""><div><strong id="settingsProfileName">Irfan</strong><p id="settingsProfileEmail">irfan@example.com</p></div></div><label>Name<input id="profileNameInput" required></label><label>Email<input id="profileEmailInput" type="email" required></label><button class="primary-button" type="submit">Save profile</button></form>
+                    <form class="card form-card" id="settingsForm"><h2>System Settings</h2><label>Theme<select id="settingTheme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></label><label>Monthly savings goal<input id="settingGoal" type="number" min="0" step="100"></label><label>Budget alert threshold<input id="settingThreshold" type="number" min="1" max="100"></label><label class="toggle-line"><span>AI advisor enabled</span><input id="settingAI" type="checkbox"></label><label class="toggle-line"><span>Receipt scan enabled</span><input id="settingOCR" type="checkbox"></label><button class="primary-button" type="submit">Save settings</button></form>
+                    <article class="card"><h2>Cache & Backend</h2><div id="cacheStatus" class="status-box">Checking cache status...</div><button class="secondary-button" id="flushCacheBtn" type="button">Flush SmartFinance cache</button></article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Mobile navigation">
+        <button class="mobile-nav-tab active" type="button" data-tab="dashboard"><span class="material-symbols-outlined">dashboard</span><small>Home</small></button>
+        <button class="mobile-nav-tab" type="button" data-tab="transactions"><span class="material-symbols-outlined">receipt_long</span><small>Ledger</small></button>
+        <button class="mobile-nav-tab" type="button" data-tab="budgets"><span class="material-symbols-outlined">account_balance_wallet</span><small>Budget</small></button>
+        <button class="mobile-nav-tab" type="button" data-tab="analytics"><span class="material-symbols-outlined">monitoring</span><small>Stats</small></button>
+        <button class="mobile-nav-tab" type="button" data-tab="support"><span class="material-symbols-outlined">support_agent</span><small>Help</small></button>
+    </nav>
+
+    <div class="modal-overlay hidden" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-card">
+            <div class="modal-header"><div><p class="eyebrow">Transaction</p><h2 id="modalTitle">Add Transaction</h2></div><div class="modal-actions"><button class="secondary-button" type="button" id="scanReceiptBtn"><span class="material-symbols-outlined">document_scanner</span>Scan</button><button class="icon-button" type="button" id="closeModal" aria-label="Close"><span class="material-symbols-outlined">close</span></button></div></div>
+            <div id="receiptPreviewContainer" class="receipt-preview hidden"><img id="receiptPreview" src="" alt="Receipt preview"><button type="button" id="removeReceiptBtn" aria-label="Remove receipt"><span class="material-symbols-outlined">close</span></button></div>
+            <input type="file" id="receiptInput" accept="image/*" class="hidden">
+            <form id="transactionForm" class="form-grid"><input type="hidden" id="transactionId"><label>Type<span class="type-toggle"><button type="button" class="type-btn active" data-type="expense">Expense</button><button type="button" class="type-btn" data-type="income">Income</button></span></label><label>Category<select id="category" required></select></label><label>Amount<span class="money-input"><span>Rs.</span><input id="amount" type="number" min="0.01" step="0.01" required></span></label><label>Description <small id="descriptionCount">0/80</small><input id="description" maxlength="80" placeholder="Coffee, rent, salary..."></label><label>Date<input id="date" type="date" required></label><div class="form-actions"><button class="secondary-button" type="button" id="cancelBtn">Cancel</button><button class="primary-button" type="submit">Save transaction</button></div></form>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="budgetModal" role="dialog" aria-modal="true" aria-labelledby="budgetModalTitle">
+        <div class="modal-card"><div class="modal-header"><div><p class="eyebrow">Budget</p><h2 id="budgetModalTitle">Add Budget</h2></div><button class="icon-button" type="button" id="closeBudgetModal"><span class="material-symbols-outlined">close</span></button></div><form id="budgetForm" class="form-grid"><label>Expense Category<select id="budgetCategory" required></select></label><label>Monthly Budget<span class="money-input"><span>Rs.</span><input id="budgetAmount" type="number" min="1" step="1" required></span></label><label>Month<input id="budgetMonthInput" type="month" required></label><p class="form-hint">Existing budget amounts are replaced for the selected category and month.</p><div class="form-actions"><button class="secondary-button" type="button" id="cancelBudgetBtn">Cancel</button><button class="primary-button" type="submit">Save budget</button></div></form></div>
+    </div>
+
+    <div class="modal-overlay hidden" id="roastModal" role="dialog" aria-modal="true" aria-labelledby="roastModalTitle">
+        <div class="modal-card"><div class="modal-header"><div><p class="eyebrow accent">AI Roast</p><h2 id="roastModalTitle">Your Monthly Roast</h2></div><button class="icon-button" type="button" id="closeRoastModal"><span class="material-symbols-outlined">close</span></button></div><div class="roast-content"><p id="roastText">Loading your financial reality check...</p></div><button class="primary-button full" type="button" id="closeRoastBtn">I'll do better</button></div>
+    </div>
+
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <div class="chat-widget" id="chatWidget">
+        <button class="chat-toggle" id="chatToggle" type="button" aria-label="Open AI Advisor Chat"><span class="material-symbols-outlined">auto_awesome</span></button>
+        <div class="chat-panel hidden" id="chatPanel">
+            <div class="chat-header"><div><h3>AI Finance Advisor</h3><p>Data-backed guidance for this month</p></div><button class="icon-button" id="closeChat" type="button"><span class="material-symbols-outlined">close</span></button></div>
+            <div class="chat-messages" id="chatMessages"><div class="message assistant"><p>Hi! Ask me how your money moved this month.</p></div></div>
+            <div class="chat-input-area"><input id="chatInput" type="text" placeholder="How much did I spend on food?"><button class="chat-send" id="chatSend" type="button"><span class="material-symbols-outlined">arrow_upward</span></button></div>
+        </div>
+    </div>
+
+    <script src="charts.js?v=master-overhaul-v3.2" defer></script>
+    <script src="app.js?v=master-overhaul-v3.4" defer></script>
+</body>
+</html>

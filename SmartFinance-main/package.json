@@ -1,0 +1,32 @@
+{
+  "name": "smartfinance",
+  "version": "1.0.0",
+  "description": "A SQL-first personal finance tracker for Indian college students",
+  "author": "Shaik Irfan",
+  "keywords": [
+    "finance",
+    "tracker",
+    "sql",
+    "expense-manager",
+    "indian-context",
+    "tailwind-css",
+    "chart-js"
+  ],
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.18.2",
+    "groq-sdk": "^1.2.0",
+    "iovalkey": "^0.3.3",
+    "multer": "^2.1.1",
+    "sql.js": "^1.10.3"
+  }
+}
